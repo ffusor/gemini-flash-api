@@ -7,7 +7,7 @@ const app = express();
 const upload = multer();
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-const GEMINI_MODEL = 'gemini-2.5-flash-lite';
+const GEMINI_MODEL = 'gemini-2.5-flash';
 
 app.use(express.json());
 
@@ -15,6 +15,8 @@ const PORT = 3000;
 
 app.listen(PORT, () => console.log(`Server ready on http://localhost:${PORT}`));
 
+
+//generate teks
 app.post('/generate-text', async (req, res) => {
     const { prompt } = req.body;
 
@@ -29,6 +31,7 @@ app.post('/generate-text', async (req, res) => {
     }
 });
 
+//generate dari gambar
 app.post('/generate-from-image', upload.single('image'), async (req, res) => {
     const { prompt } = req.body;
     const base64Image = req.file.buffer.toString('base64');
@@ -47,7 +50,7 @@ app.post('/generate-from-image', upload.single('image'), async (req, res) => {
     }
 });
 
-
+//generate dari dokumen
 app.post('/generate-from-document', upload.single('document'), async (req, res) => {
     const { prompt } = req.body;
     const base64Document = req.file.buffer.toString('base64');
@@ -56,7 +59,7 @@ app.post('/generate-from-document', upload.single('document'), async (req, res) 
         const response = await ai.models.generateContent({
             model: GEMINI_MODEL,
             contents: [
-                { text: prompt ?? 'Tolong buatkan ringkasan dari dokumen berikut', type: 'text' },
+                { text: prompt ?? 'Buatkan ringkasan dari dokumen berikut', type: 'text' },
                 { inlineData: { data: base64Document, mimeType: req.file.mimetype }}
             ]
         })
@@ -66,6 +69,7 @@ app.post('/generate-from-document', upload.single('document'), async (req, res) 
     }
 });
 
+//generate dari
 app.post('/generate-from-audio', upload.single('audio'), async (req, res) => {
     const { prompt } = req.body;
     const base64Audio = req.file.buffer.toString('base64');
@@ -74,7 +78,7 @@ app.post('/generate-from-audio', upload.single('audio'), async (req, res) => {
         const response = await ai.models.generateContent({
             model: GEMINI_MODEL,
             contents: [
-                { text: prompt ?? 'Tolong buatkan transkrip dari audio berikut', type: 'text' },
+                { text: prompt ?? 'Buatkan transkrip dari audio berikut', type: 'text' },
                 { inlineData: { data: base64Audio, mimeType: req.file.mimetype }}
             ]
         })
@@ -83,4 +87,3 @@ app.post('/generate-from-audio', upload.single('audio'), async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 });
-
